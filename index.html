@@ -1,1037 +1,138 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>即興劇聯賽 — IMPROV LEAGUE TAIWAN</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Serif+TC:wght@300;400;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --ink: #0d0d0d;
-    --cream: #f5f0e8;
-    --red: #e63025;
-    --gold: #d4a017;
-    --dim: #2a2a2a;
-    --muted: #888;
-  }
-
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  html { scroll-behavior: smooth; }
-
-  body {
-    background: var(--cream);
-    color: var(--ink);
-    font-family: 'Noto Serif TC', serif;
-    overflow-x: hidden;
-  }
-
-  /* ── NOISE OVERLAY ── */
-  body::before {
-    content: '';
-    position: fixed; inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-    pointer-events: none; z-index: 9999;
-    opacity: .5;
-  }
-
-  /* ── NAVBAR ── */
-  nav {
-    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 1.2rem 3rem;
-    background: var(--ink);
-    border-bottom: 3px solid var(--red);
-  }
-
-  .nav-logo {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.6rem; letter-spacing: .12em;
-    color: var(--cream);
-    text-decoration: none;
-  }
-  .nav-logo span { color: var(--red); }
-
-  .nav-links { display: flex; gap: 2rem; list-style: none; }
-  .nav-links a {
-    font-family: 'Space Mono', monospace;
-    font-size: .72rem; letter-spacing: .15em; text-transform: uppercase;
-    color: var(--cream); text-decoration: none;
-    transition: color .2s;
-  }
-  .nav-links a:hover { color: var(--gold); }
-
-  /* ── HERO ── */
-  #home {
-    min-height: 100vh;
-    background: var(--ink);
-    display: grid;
-    place-items: center;
-    position: relative;
-    overflow: hidden;
-    padding: 7rem 3rem 4rem;
-  }
-
-  .hero-lines {
-    position: absolute; inset: 0;
-    background-image: repeating-linear-gradient(
-      0deg, transparent, transparent 59px, rgba(255,255,255,.04) 60px
-    ), repeating-linear-gradient(
-      90deg, transparent, transparent 59px, rgba(255,255,255,.04) 60px
-    );
-  }
-
-  .hero-year {
-    position: absolute; top: 8rem; right: 3rem;
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: clamp(6rem,18vw,16rem);
-    color: rgba(255,255,255,.04);
-    letter-spacing: -.02em;
-    user-select: none;
-    line-height: 1;
-  }
-
-  .hero-content { position: relative; z-index: 2; text-align: center; }
-
-  .hero-tag {
-    display: inline-block;
-    font-family: 'Space Mono', monospace;
-    font-size: .7rem; letter-spacing: .25em; text-transform: uppercase;
-    color: var(--gold);
-    border: 1px solid var(--gold);
-    padding: .3rem .9rem; margin-bottom: 2rem;
-    animation: fadeUp .8s ease both;
-  }
-
-  .hero-title {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: clamp(4rem,12vw,10rem);
-    color: var(--cream);
-    line-height: .92;
-    letter-spacing: -.01em;
-    animation: fadeUp .8s .15s ease both;
-  }
-  .hero-title .accent { color: var(--red); display: block; }
-
-  .hero-sub {
-    margin-top: 1.5rem;
-    font-size: 1.05rem; font-weight: 300;
-    color: rgba(245,240,232,.55);
-    letter-spacing: .05em;
-    animation: fadeUp .8s .3s ease both;
-  }
-
-  .hero-cta {
-    margin-top: 3rem;
-    display: inline-block;
-    font-family: 'Space Mono', monospace;
-    font-size: .8rem; letter-spacing: .2em; text-transform: uppercase;
-    background: var(--red);
-    color: var(--cream);
-    padding: 1rem 2.4rem;
-    text-decoration: none;
-    transition: background .2s, transform .2s;
-    animation: fadeUp .8s .45s ease both;
-  }
-  .hero-cta:hover { background: #c22018; transform: translateY(-2px); }
-
-  .hero-scroll {
-    position: absolute; bottom: 2.5rem; left: 50%;
-    transform: translateX(-50%);
-    display: flex; flex-direction: column; align-items: center; gap: .5rem;
-    animation: bounce 2s infinite;
-  }
-  .hero-scroll span {
-    font-family: 'Space Mono', monospace;
-    font-size: .6rem; letter-spacing: .2em;
-    color: rgba(245,240,232,.35);
-  }
-  .hero-scroll::after {
-    content: '↓';
-    color: var(--red); font-size: 1.2rem;
-  }
-
-  @keyframes bounce {
-    0%,100% { transform: translateX(-50%) translateY(0); }
-    50% { transform: translateX(-50%) translateY(8px); }
-  }
-  @keyframes fadeUp {
-    from { opacity:0; transform: translateY(30px); }
-    to   { opacity:1; transform: translateY(0); }
-  }
-
-  /* ── SECTION BASE ── */
-  section { padding: 7rem 3rem; }
-
-  .section-label {
-    font-family: 'Space Mono', monospace;
-    font-size: .65rem; letter-spacing: .3em; text-transform: uppercase;
-    color: var(--red);
-    display: flex; align-items: center; gap: .8rem;
-    margin-bottom: 1rem;
-  }
-  .section-label::after {
-    content: ''; flex: 0 0 40px; height: 1px; background: var(--red);
-  }
-
-  .section-title {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: clamp(2.5rem,6vw,5rem);
-    line-height: 1;
-    letter-spacing: .02em;
-  }
-
-  /* ── ABOUT / 即興劇介紹 ── */
-  #about {
-    background: var(--cream);
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 5rem;
-    align-items: center;
-    max-width: 1300px;
-    margin: 0 auto;
-    padding-top: 7rem;
-    padding-bottom: 7rem;
-  }
-
-  .about-visual {
-    position: relative;
-  }
-  .about-card {
-    background: var(--ink);
-    color: var(--cream);
-    padding: 3.5rem;
-    position: relative;
-  }
-  .about-card::before {
-    content: '即興';
-    position: absolute; top: -1.5rem; right: 2rem;
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 6rem; color: var(--red);
-    line-height: 1; opacity: .2;
-  }
-  .about-card blockquote {
-    font-size: 1.3rem; font-weight: 300; line-height: 1.8;
-    border-left: 3px solid var(--red);
-    padding-left: 1.5rem;
-    font-style: italic;
-  }
-  .about-card cite {
-    display: block; margin-top: 1.5rem;
-    font-family: 'Space Mono', monospace;
-    font-size: .7rem; letter-spacing: .15em; color: var(--gold);
-  }
-
-  .about-text p {
-    font-size: 1rem; line-height: 1.9; color: #333;
-    margin-bottom: 1.2rem;
-  }
-
-  .about-features {
-    margin-top: 2rem;
-    display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;
-  }
-  .feat {
-    border: 1px solid rgba(0,0,0,.12);
-    padding: 1rem 1.2rem;
-  }
-  .feat-icon { font-size: 1.4rem; margin-bottom: .4rem; }
-  .feat-name {
-    font-family: 'Space Mono', monospace;
-    font-size: .7rem; letter-spacing: .1em;
-    color: var(--red);
-  }
-  .feat p { font-size: .85rem; color: #555; margin: .3rem 0 0; line-height: 1.5; }
-
-  /* ── TEAMS ── */
-  #teams {
-    background: var(--ink);
-    padding: 7rem 3rem;
-  }
-  #teams .inner {
-    max-width: 1300px; margin: 0 auto;
-  }
-  #teams .section-label { color: var(--gold); }
-  #teams .section-label::after { background: var(--gold); }
-  #teams .section-title { color: var(--cream); margin-bottom: 3.5rem; }
-
-  .teams-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1.5px;
-    background: rgba(255,255,255,.08);
-  }
-
-  .team-card {
-    background: var(--dim);
-    padding: 2.5rem;
-    position: relative;
-    overflow: hidden;
-    cursor: default;
-    transition: background .3s;
-  }
-  .team-card:hover { background: #333; }
-
-  .team-num {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 5rem; color: rgba(255,255,255,.06);
-    position: absolute; top: 1rem; right: 1.5rem;
-    line-height: 1;
-    transition: color .3s;
-  }
-  .team-card:hover .team-num { color: rgba(214,160,23,.15); }
-
-  .team-photo {
-    width: 100%; height: 180px;
-    object-fit: cover;
-    margin-bottom: 1.2rem;
-    display: block;
-    filter: grayscale(20%);
-    transition: filter .3s;
-  }
-  .team-card:hover .team-photo { filter: grayscale(0%); }
-
-  .team-photo-placeholder {
-    width: 100%; height: 180px;
-    margin-bottom: 1.2rem;
-    display: flex; align-items: center; justify-content: center;
-    flex-direction: column; gap: .5rem;
-    background: rgba(255,255,255,.04);
-    border: 1px dashed rgba(255,255,255,.15);
-    color: rgba(255,255,255,.25);
-    font-family: 'Space Mono', monospace;
-    font-size: .65rem; letter-spacing: .12em;
-    text-align: center;
-  }
-  .team-photo-placeholder .ph-icon { font-size: 1.8rem; opacity: .4; }
-
-  .team-badge {
-    width: 48px; height: 48px;
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.4rem;
-    margin-bottom: 1.2rem;
-  }
-
-  .team-name {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.8rem; letter-spacing: .05em;
-    color: var(--cream);
-    margin-bottom: .5rem;
-  }
-  .team-eng {
-    font-family: 'Space Mono', monospace;
-    font-size: .62rem; letter-spacing: .15em; text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 1rem;
-  }
-  .team-desc {
-    font-size: .88rem; line-height: 1.7;
-    color: rgba(245,240,232,.55);
-  }
-  .team-tag {
-    display: inline-block; margin-top: 1.2rem;
-    font-family: 'Space Mono', monospace;
-    font-size: .6rem; letter-spacing: .12em;
-    border: 1px solid; padding: .25rem .7rem;
-    text-transform: uppercase;
-  }
-
-  /* ── SCHEDULE ── */
-  #schedule {
-    background: var(--cream);
-    padding: 7rem 3rem;
-  }
-  #schedule .inner { max-width: 1100px; margin: 0 auto; }
-  #schedule .section-title { margin-bottom: 3rem; }
-
-  .schedule-list { display: flex; flex-direction: column; gap: 0; }
-
-  .schedule-item {
-    display: grid;
-    grid-template-columns: 100px 1fr auto;
-    gap: 2rem;
-    align-items: center;
-    padding: 1.8rem 0;
-    border-bottom: 1px solid rgba(0,0,0,.1);
-    transition: background .2s;
-    position: relative;
-  }
-  .schedule-item:first-child { border-top: 1px solid rgba(0,0,0,.1); }
-
-  .schedule-item.featured {
-    background: var(--ink); color: var(--cream);
-    padding: 1.8rem 2rem;
-    border: none; margin: 1rem 0;
-  }
-  .schedule-item.featured .sch-date span { color: var(--gold); }
-  .schedule-item.featured .sch-title { color: var(--cream); }
-  .schedule-item.featured .sch-meta { color: rgba(245,240,232,.5); }
-
-  .sch-date {
-    text-align: center;
-    font-family: 'Bebas Neue', sans-serif;
-  }
-  .sch-date .day { font-size: 2.8rem; line-height: 1; color: var(--red); }
-  .sch-date span { font-family: 'Space Mono', monospace; font-size: .65rem; letter-spacing: .1em; color: var(--muted); }
-
-  .sch-info {}
-  .sch-title { font-size: 1.1rem; font-weight: 700; margin-bottom: .3rem; }
-  .sch-meta {
-    font-family: 'Space Mono', monospace;
-    font-size: .68rem; letter-spacing: .08em; color: var(--muted);
-  }
-  .sch-meta span { margin-right: 1.2rem; }
-
-  .sch-badge {
-    font-family: 'Space Mono', monospace;
-    font-size: .58rem; letter-spacing: .12em; text-transform: uppercase;
-    padding: .3rem .9rem;
-    white-space: nowrap;
-  }
-  .badge-live { background: var(--red); color: #fff; }
-  .badge-soon { border: 1px solid var(--gold); color: var(--gold); }
-  .badge-reg  { border: 1px solid var(--muted); color: var(--muted); }
-
-  /* ── PROMO ── */
-  #promo {
-    background: var(--red);
-    padding: 7rem 3rem;
-    position: relative;
-    overflow: hidden;
-  }
-  #promo::before {
-    content: 'LIVE';
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 22vw; color: rgba(0,0,0,.08);
-    position: absolute; right: -2vw; top: 50%; transform: translateY(-50%);
-    letter-spacing: -.05em; user-select: none; line-height: 1;
-  }
-  #promo .inner {
-    max-width: 1100px; margin: 0 auto;
-    position: relative; z-index: 2;
-    display: grid; grid-template-columns: 1fr auto;
-    align-items: center; gap: 4rem;
-  }
-  .promo-label {
-    font-family: 'Space Mono', monospace;
-    font-size: .65rem; letter-spacing: .3em; text-transform: uppercase;
-    color: rgba(245,240,232,.65); margin-bottom: .8rem;
-  }
-  .promo-title {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: clamp(2.5rem,7vw,5.5rem);
-    color: var(--cream); line-height: .95; letter-spacing: .02em;
-  }
-  .promo-body {
-    margin-top: 1.5rem;
-    font-size: 1rem; line-height: 1.8; color: rgba(245,240,232,.8);
-    max-width: 520px;
-  }
-  .promo-details {
-    margin-top: 2rem;
-    display: flex; gap: 2.5rem;
-  }
-  .promo-detail {}
-  .promo-detail .val {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 2.5rem; color: var(--cream); line-height: 1;
-  }
-  .promo-detail .lbl {
-    font-family: 'Space Mono', monospace;
-    font-size: .62rem; letter-spacing: .12em; color: rgba(245,240,232,.6);
-  }
-  .promo-cta-block { flex-shrink: 0; display: flex; flex-direction: column; gap: 1rem; }
-  .promo-btn {
-    display: block; text-align: center;
-    font-family: 'Space Mono', monospace;
-    font-size: .75rem; letter-spacing: .15em; text-transform: uppercase;
-    padding: 1rem 2rem;
-    text-decoration: none;
-    transition: .2s;
-  }
-  .promo-btn.primary { background: var(--cream); color: var(--red); }
-  .promo-btn.primary:hover { background: var(--ink); color: var(--cream); }
-  .promo-btn.secondary { border: 1px solid rgba(245,240,232,.5); color: var(--cream); }
-  .promo-btn.secondary:hover { border-color: var(--cream); }
-
-  /* ── CONTACT ── */
-  #contact {
-    background: var(--ink);
-    padding: 7rem 3rem;
-  }
-  #contact .inner {
-    max-width: 1100px; margin: 0 auto;
-    display: grid; grid-template-columns: 1fr 1fr; gap: 6rem;
-    align-items: start;
-  }
-  #contact .section-label { color: var(--gold); }
-  #contact .section-label::after { background: var(--gold); }
-  #contact .section-title { color: var(--cream); margin-bottom: 2rem; }
-  .contact-intro { font-size: .95rem; line-height: 1.8; color: rgba(245,240,232,.55); }
-
-  .contact-info { margin-top: 2.5rem; display: flex; flex-direction: column; gap: 1.5rem; }
-  .contact-row {
-    display: flex; gap: 1.2rem; align-items: flex-start;
-  }
-  .contact-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: .1rem; }
-  .contact-detail {}
-  .contact-detail .lbl {
-    font-family: 'Space Mono', monospace;
-    font-size: .62rem; letter-spacing: .15em; text-transform: uppercase;
-    color: var(--gold); margin-bottom: .2rem;
-  }
-  .contact-detail .val { font-size: .95rem; color: var(--cream); }
-
-  .contact-form { display: flex; flex-direction: column; gap: 1.2rem; }
-  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-
-  .form-group { display: flex; flex-direction: column; gap: .4rem; }
-  .form-group label {
-    font-family: 'Space Mono', monospace;
-    font-size: .62rem; letter-spacing: .15em; text-transform: uppercase;
-    color: var(--gold);
-  }
-  .form-group input,
-  .form-group textarea,
-  .form-group select {
-    background: #1a1a1a;
-    border: 1px solid rgba(255,255,255,.1);
-    color: var(--cream);
-    padding: .85rem 1rem;
-    font-family: 'Noto Serif TC', serif;
-    font-size: .9rem;
-    outline: none;
-    transition: border-color .2s;
-    resize: vertical;
-    appearance: none;
-  }
-  .form-group input:focus,
-  .form-group textarea:focus,
-  .form-group select:focus {
-    border-color: var(--red);
-  }
-  .form-group select option { background: #1a1a1a; }
-
-  .form-submit {
-    font-family: 'Space Mono', monospace;
-    font-size: .75rem; letter-spacing: .2em; text-transform: uppercase;
-    background: var(--red); color: var(--cream);
-    border: none; padding: 1.1rem 2rem;
-    cursor: pointer;
-    transition: background .2s, transform .2s;
-    align-self: flex-start;
-  }
-  .form-submit:hover { background: #c22018; transform: translateY(-2px); }
-
-  /* ── FOOTER ── */
-  footer {
-    background: #080808;
-    border-top: 1px solid rgba(255,255,255,.05);
-    padding: 2.5rem 3rem;
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  .footer-logo {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.2rem; letter-spacing: .1em; color: var(--cream);
-  }
-  .footer-logo span { color: var(--red); }
-  .footer-copy {
-    font-family: 'Space Mono', monospace;
-    font-size: .6rem; letter-spacing: .1em; color: rgba(255,255,255,.25);
-  }
-  .footer-socials { display: flex; gap: 1.2rem; }
-  .footer-socials a {
-    font-family: 'Space Mono', monospace;
-    font-size: .65rem; letter-spacing: .1em; text-transform: uppercase;
-    color: rgba(255,255,255,.35); text-decoration: none;
-    transition: color .2s;
-  }
-  .footer-socials a:hover { color: var(--gold); }
-
-  /* ── SECTION DIVIDER ── */
-  .divider {
-    height: 1px; background: rgba(0,0,0,.08);
-    max-width: 1300px; margin: 0 auto;
-  }
-
-  /* ── RESPONSIVE ── */
-  @media (max-width: 900px) {
-    nav { padding: 1rem 1.5rem; }
-    .nav-links { display: none; }
-    #about { grid-template-columns: 1fr; gap: 3rem; }
-    #promo .inner { grid-template-columns: 1fr; }
-    #contact .inner { grid-template-columns: 1fr; }
-    .form-row { grid-template-columns: 1fr; }
-    .schedule-item { grid-template-columns: 80px 1fr; }
-    .sch-badge { display: none; }
-    footer { flex-direction: column; gap: 1rem; text-align: center; }
-    section { padding: 5rem 1.5rem; }
-    #about { padding: 5rem 1.5rem; }
-  }
-
-  /* ── SCROLL REVEAL ── */
-  .reveal {
-    opacity: 0; transform: translateY(40px);
-    transition: opacity .7s ease, transform .7s ease;
-  }
-  .reveal.visible { opacity: 1; transform: none; }
-
-  /* ── ACTIVE NAV ── */
-  .nav-links a.active { color: var(--gold); }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yes, And！即興高峰會 | Theater Sports 聯賽</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .hero-gradient { background: linear-gradient(135deg, #FFD700 0%, #FF4500 50%, #1E90FF 100%); }
+        .team-card:hover { transform: translateY(-5px); transition: 0.3s; }
+    </style>
 </head>
-<body>
+<body class="bg-gray-50 text-gray-800">
 
-<!-- NAV -->
-<nav>
-  <a class="nav-logo" href="#home">即興<span>聯</span>賽</a>
-  <ul class="nav-links">
-    <li><a href="#about">關於即興劇</a></li>
-    <li><a href="#teams">參賽團隊</a></li>
-    <li><a href="#schedule">賽程公告</a></li>
-    <li><a href="#promo">活動宣傳</a></li>
-    <li><a href="#contact">聯繫我們</a></li>
-  </ul>
-</nav>
-
-<!-- HERO -->
-<section id="home">
-  <div class="hero-lines"></div>
-  <div class="hero-year">2026</div>
-  <div class="hero-content">
-    <div class="hero-tag">Taiwan Improv League 2026</div>
-    <h1 class="hero-title">
-      台灣即興劇
-      <span class="accent">聯賽</span>
-    </h1>
-    <p class="hero-sub">當下誕生的故事・沒有劇本的精彩・純粹的人性連結</p>
-    <a href="#schedule" class="hero-cta">查看賽程 →</a>
-  </div>
-  <div class="hero-scroll"><span>SCROLL</span></div>
-</section>
-
-<!-- ABOUT -->
-<section id="about" class="reveal">
-  <div class="about-visual">
-    <div class="about-card">
-      <blockquote>
-        即興劇的美，在於它誠實地映照出你此刻的真實——沒有彩排，只有當下。
-      </blockquote>
-      <cite>— Keith Johnstone，即興劇之父</cite>
-    </div>
-  </div>
-  <div class="about-text">
-    <div class="section-label">ABOUT IMPROV</div>
-    <h2 class="section-title">什麼是<br>即興劇？</h2>
-    <p>即興劇（Improv Theatre）是一種沒有事先排練、不依賴固定劇本的表演藝術。演員在舞台上即時創作故事、塑造角色，往往只憑觀眾的一個字或一個動作，便能發展出完整而感動人心的場景。</p>
-    <p>即興劇強調「接受並延伸」（Yes, And）的核心精神——接受夥伴帶來的任何提議，並在此基礎上繼續建構。這種開放的態度，讓即興劇既是一門高度協作的藝術，也是一場充滿驚喜的遊戲。</p>
-    <div class="about-features">
-      <div class="feat">
-        <div class="feat-icon">🎭</div>
-        <div class="feat-name">角色扮演</div>
-        <p>在瞬間進入不同人物，呈現真實的情感與關係。</p>
-      </div>
-      <div class="feat">
-        <div class="feat-icon">🧠</div>
-        <div class="feat-name">當下創作</div>
-        <p>沒有台詞可背，一切從思維與直覺中誕生。</p>
-      </div>
-      <div class="feat">
-        <div class="feat-icon">🤝</div>
-        <div class="feat-name">團隊協作</div>
-        <p>互相傾聽、支持，共同建構舞台上的世界。</p>
-      </div>
-      <div class="feat">
-        <div class="feat-icon">✨</div>
-        <div class="feat-name">觀眾參與</div>
-        <p>觀眾的提議成為故事的起點，每場演出獨一無二。</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<div class="divider"></div>
-
-<!-- TEAMS -->
-<section id="teams">
-  <div class="inner">
-    <div class="section-label">COMPETING TEAMS</div>
-    <h2 class="section-title reveal" style="color:var(--cream); margin-bottom:3.5rem;">參賽團隊</h2>
-    <div class="teams-grid reveal">
-
-      <div class="team-card">
-        <div class="team-num">01</div>
-        <!-- 換圖：把下方 src 的檔名改成你的照片，例如 images/team01-wildfire.jpg -->
-        <!-- 若尚未有照片，這裡會顯示佔位方塊 -->
-        <img
-          class="team-photo"
-          src="images/OKs.jpg"
-          alt="野火劇團團照"
-          onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
-        >
-        <div class="team-photo-placeholder" style="display:none;">
-          <span class="ph-icon">📷</span>
-          <span>team01-wildfire.jpg</span>
-          <span>上傳照片至 images/ 資料夾</span>
+    <nav class="sticky top-0 bg-white shadow-md z-50">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-orange-600">Yes, And！即興高峰會</h1>
+            <div class="space-x-6">
+                <a href="#about" class="hover:text-orange-500">介紹</a>
+                <a href="#teams" class="hover:text-orange-500">參賽團隊</a>
+                <a href="#schedule" class="hover:text-orange-500">近日賽程</a>
+                <a href="#promo" class="hover:text-orange-500">活動宣傳</a>
+                <a href="#contact" class="hover:text-orange-500">聯繫我們</a>
+            </div>
         </div>
-        <div class="team-badge" style="background:rgba(230,48,37,.15);">🔥</div>
-        <div class="team-name">野火劇團</div>
-        <div class="team-eng">WILDFIRE IMPROV</div>
-        <p class="team-desc">來自台北的即興老將，以爆發性的肢體能量與黑色幽默著稱。擅長長篇敘事格式（Harold），曾代表台灣赴荷蘭參賽。</p>
-        <span class="team-tag" style="border-color:var(--red);color:var(--red);">台北 · 成立2015</span>
-      </div>
+    </nav>
 
-      <div class="team-card">
-        <div class="team-num">02</div>
-        <!-- 換圖：把下方 src 的檔名改成你的照片，例如 images/team02-wavelab.jpg -->
-        <img
-          class="team-photo"
-          src="images/OKs.jpg"
-          alt="浪人劇工廠團照"
-          onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
-        >
-        <div class="team-photo-placeholder" style="display:none;">
-          <span class="ph-icon">📷</span>
-          <span>team02-wavelab.jpg</span>
-          <span>上傳照片至 images/ 資料夾</span>
-        </div>
-        <div class="team-badge" style="background:rgba(212,160,23,.15);">🌊</div>
-        <div class="team-name">浪人劇工廠</div>
-        <div class="team-eng">WAVE LAB IMPROV</div>
-        <p class="team-desc">台中新銳力量，以細膩的情感刻畫與詩意場景轉換見長。特別擅長雙人場景（Scenework），風格溫柔而深刻。</p>
-        <span class="team-tag" style="border-color:var(--gold);color:var(--gold);">台中 · 成立2019</span>
-      </div>
+    <header class="hero-gradient text-white py-24 text-center">
+        <h2 class="text-5xl font-black mb-4">即興聯賽 MVP 計畫正式啟動！</h2>
+        <p class="text-xl mb-8">2026/07/31 - 08/01 巔峰對決</p>
+        <a href="#schedule" class="bg-white text-orange-600 px-8 py-3 rounded-full font-bold text-lg shadow-lg">立即購票</a>
+    </header>
 
-      <div class="team-card">
-        <div class="team-num">03</div>
-        <!-- 換圖：把下方 src 的檔名改成你的照片，例如 images/team03-root.jpg -->
-        <img
-          class="team-photo"
-          src="images/team03-root.jpg"
-          alt="根系集體團照"
-          onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
-        >
-        <div class="team-photo-placeholder" style="display:none;">
-          <span class="ph-icon">📷</span>
-          <span>team03-root.jpg</span>
-          <span>上傳照片至 images/ 資料夾</span>
+    <section id="about" class="container mx-auto px-6 py-20">
+        <h3 class="text-3xl font-bold text-center mb-12">什麼是即興劇？</h3>
+        <div class="grid md:grid-cols-2 gap-12 items-center">
+            <div class="bg-orange-100 p-8 rounded-2xl shadow-inner">
+                <p class="text-lg leading-relaxed">
+                    這是一場沒有劇本、沒有排練的現場演出！核心精神是 <strong>「Yes, And」</strong>。
+                    演員必須接納對手給出的所有點子（Yes），並在此基礎上添加新的創意（And）。
+                    我們在這裡慶祝失敗，因為所有錯誤都是通往驚喜的轉機！ [cite: 2]
+                </p>
+            </div>
+            <div class="text-center">
+                <span class="text-8xl">🎭</span>
+            </div>
         </div>
-        <div class="team-badge" style="background:rgba(100,200,150,.12);">🌿</div>
-        <div class="team-name">根系集體</div>
-        <div class="team-eng">ROOT COLLECTIVE</div>
-        <p class="team-desc">以跨文化議題為核心的即興劇團，融合原住民故事與當代社會議題，創造兼具政治敏感度與娛樂性的演出。</p>
-        <span class="team-tag" style="border-color:#64c896;color:#64c896;">花蓮 · 成立2020</span>
-      </div>
+    </section>
 
-      <div class="team-card">
-        <div class="team-num">04</div>
-        <!-- 換圖：把下方 src 的檔名改成你的照片，例如 images/team04-spark.jpg -->
-        <img
-          class="team-photo"
-          src="images/team04-spark.jpg"
-          alt="電光劇場團照"
-          onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
-        >
-        <div class="team-photo-placeholder" style="display:none;">
-          <span class="ph-icon">📷</span>
-          <span>team04-spark.jpg</span>
-          <span>上傳照片至 images/ 資料夾</span>
+    <section id="teams" class="bg-white py-20">
+        <div class="container mx-auto px-6 text-center">
+            <h3 class="text-3xl font-bold mb-12">參賽戰隊</h3>
+            <div class="grid md:grid-cols-4 gap-8">
+                <div class="team-card border p-6 rounded-xl shadow-sm">
+                    <div class="w-20 h-20 bg-blue-500 rounded-full mx-auto mb-4"></div>
+                    <h4 class="font-bold text-xl">舞動元素</h4>
+                    <p class="text-sm text-gray-500 mt-2">多元風格的劇情魔術師</p>
+                </div>
+                <div class="team-card border p-6 rounded-xl shadow-sm">
+                    <div class="w-20 h-20 bg-red-500 rounded-full mx-auto mb-4"></div>
+                    <h4 class="font-bold text-xl">超即拍檔</h4>
+                    <p class="text-sm text-gray-500 mt-2">冷靜對峙的喜劇職人</p>
+                </div>
+                <div class="team-card border p-6 rounded-xl shadow-sm">
+                    <div class="w-20 h-20 bg-yellow-500 rounded-full mx-auto mb-4"></div>
+                    <h4 class="font-bold text-xl">活力三人組</h4>
+                    <p class="text-sm text-gray-500 mt-2">陽光熱血的即興戰士</p>
+                </div>
+                <div class="team-card border p-6 rounded-xl shadow-sm">
+                    <div class="w-20 h-20 bg-green-500 rounded-full mx-auto mb-4"></div>
+                    <h4 class="font-bold text-xl">跨國聯盟</h4>
+                    <p class="text-sm text-gray-500 mt-2">集體壓迫感的即興巨頭</p>
+                </div>
+            </div>
         </div>
-        <div class="team-badge" style="background:rgba(130,100,255,.15);">⚡</div>
-        <div class="team-name">電光劇場</div>
-        <div class="team-eng">SPARK IMPROV</div>
-        <p class="team-desc">由喜劇演員組成的快節奏團隊，短形式遊戲（Short Form）的王者。觀眾互動超強，笑聲從未停過。</p>
-        <span class="team-tag" style="border-color:#8264ff;color:#8264ff;">高雄 · 成立2017</span>
-      </div>
+    </section>
 
-      <div class="team-card">
-        <div class="team-num">05</div>
-        <!-- 換圖：把下方 src 的檔名改成你的照片，例如 images/team05-float.jpg -->
-        <img
-          class="team-photo"
-          src="images/team05-float.jpg"
-          alt="漂浮馬戲團照"
-          onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
-        >
-        <div class="team-photo-placeholder" style="display:none;">
-          <span class="ph-icon">📷</span>
-          <span>team05-float.jpg</span>
-          <span>上傳照片至 images/ 資料夾</span>
-        </div>
-        <div class="team-badge" style="background:rgba(240,150,50,.15);">🎪</div>
-        <div class="team-name">漂浮馬戲</div>
-        <div class="team-eng">FLOAT CIRCUS</div>
-        <p class="team-desc">結合雜技、音樂即興與戲劇的多元風格團體，每次演出都像一場視覺饗宴。新竹起家，現為全台最具視覺張力的即興團。</p>
-        <span class="team-tag" style="border-color:#f09632;color:#f09632;">新竹 · 成立2018</span>
-      </div>
+    <section id="schedule" class="container mx-auto px-6 py-20">
+        <h3 class="text-3xl font-bold text-center mb-12">近日賽程</h3>
+        <table class="w-full text-left border-collapse bg-white shadow-lg rounded-lg overflow-hidden">
+            <thead class="bg-gray-100">
+                <tr>
+                    <th class="p-4">日期</th>
+                    <th class="p-4">對戰組合</th>
+                    <th class="p-4">地點</th>
+                    <th class="p-4">購票</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="border-b">
+                    <td class="p-4">07/31 (五)</td>
+                    <td class="p-4">四隊全場積分賽</td>
+                    <td class="p-4">即興劇場 A</td>
+                    <td class="p-4 text-blue-600 font-bold"><a href="#">點此購票</a></td>
+                </tr>
+                <tr>
+                    <td class="p-4">08/01 (六)</td>
+                    <td class="p-4">MVP 總決賽</td>
+                    <td class="p-4">即興劇場 A</td>
+                    <td class="p-4 text-blue-600 font-bold"><a href="#">點此購票</a></td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
 
-      <div class="team-card">
-        <div class="team-num">06</div>
-        <!-- 換圖：把下方 src 的檔名改成你的照片，例如 images/team06-fog.jpg -->
-        <img
-          class="team-photo"
-          src="images/team06-fog.jpg"
-          alt="霧室計畫團照"
-          onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
-        >
-        <div class="team-photo-placeholder" style="display:none;">
-          <span class="ph-icon">📷</span>
-          <span>team06-fog.jpg</span>
-          <span>上傳照片至 images/ 資料夾</span>
+    <section id="promo" class="bg-gray-800 text-white py-20">
+        <div class="container mx-auto px-6 text-center">
+            <h3 class="text-3xl font-bold mb-8">專案進展與推廣</h3>
+            <p class="mb-12">95 老師 5 堂專業課進行中 | KOL 跨界媒合中 | 公益 Case 執行中 [cite: 117, 293]</p>
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="bg-gray-700 p-6 rounded-lg italic">"即興劇從點連成線，打造共榮生態系！"</div>
+                <div class="bg-gray-700 p-6 rounded-lg italic">"透過 Theater Sports 翻轉台灣表演藝術環境！"</div>
+                <div class="bg-gray-700 p-6 rounded-lg italic">"每場演出都是一場產業革命！"</div>
+            </div>
         </div>
-        <div class="team-badge" style="background:rgba(200,230,255,.1);">❄️</div>
-        <div class="team-name">霧室計畫</div>
-        <div class="team-eng">FOG ROOM PROJECT</div>
-        <p class="team-desc">實驗即興先鋒，探索沉默、重複與抽象敘事的可能性。演出風格介於行為藝術與心理驚悚之間，令人難忘。</p>
-        <span class="team-tag" style="border-color:#a0c8f0;color:#a0c8f0;">台南 · 成立2021</span>
-      </div>
+    </section>
 
-    </div>
-  </div>
-</section>
+    <section id="contact" class="container mx-auto px-6 py-20 max-w-2xl">
+        <h3 class="text-3xl font-bold text-center mb-12">聯繫我們</h3>
+        <form class="space-y-6">
+            <input type="text" placeholder="姓名/團體名" class="w-full p-4 border rounded-lg">
+            <select class="w-full p-4 border rounded-lg">
+                <option>我想看戲</option>
+                <option>我想學即興 (95 老師課程)</option>
+                <option>劇團想加入聯賽</option>
+                <option>商業/公益合作洽談</option>
+            </select>
+            <textarea placeholder="留言內容" class="w-full p-4 border rounded-lg h-32"></textarea>
+            <button class="w-full bg-orange-600 text-white py-4 rounded-lg font-bold hover:bg-orange-700">送出訊息</button>
+        </form>
+    </section>
 
-<!-- SCHEDULE -->
-<section id="schedule">
-  <div class="inner reveal">
-    <div class="section-label">SCHEDULE</div>
-    <h2 class="section-title">近日賽程公告</h2>
+    <footer class="text-center py-10 text-gray-400">
+        &copy; 2026 台灣即興劇協會. All rights reserved.
+    </footer>
 
-    <div style="margin: 1rem 0 2rem; font-family:'Space Mono',monospace; font-size:.7rem; letter-spacing:.1em; color:var(--muted);">
-      ALL EVENTS — 2026 賽季
-    </div>
-
-    <div class="schedule-list">
-
-      <div class="schedule-item featured">
-        <div class="sch-date">
-          <div class="day">17</div>
-          <span>五月</span>
-        </div>
-        <div class="sch-info">
-          <div class="sch-title">🏆 準決賽第一場 — 野火劇團 vs. 電光劇場</div>
-          <div class="sch-meta">
-            <span>📍 台北華山1914創意文化園區</span>
-            <span>⏰ 19:30</span>
-            <span>🎟 $350</span>
-          </div>
-        </div>
-        <span class="sch-badge badge-live">即將登場</span>
-      </div>
-
-      <div class="schedule-item">
-        <div class="sch-date">
-          <div class="day">24</div>
-          <span>五月</span>
-        </div>
-        <div class="sch-info">
-          <div class="sch-title">準決賽第二場 — 浪人劇工廠 vs. 根系集體</div>
-          <div class="sch-meta">
-            <span>📍 台中國家歌劇院</span>
-            <span>⏰ 19:00</span>
-            <span>🎟 $350</span>
-          </div>
-        </div>
-        <span class="sch-badge badge-soon">報名中</span>
-      </div>
-
-      <div class="schedule-item">
-        <div class="sch-date">
-          <div class="day">31</div>
-          <span>五月</span>
-        </div>
-        <div class="sch-info">
-          <div class="sch-title">附加賽 — 漂浮馬戲 vs. 霧室計畫</div>
-          <div class="sch-meta">
-            <span>📍 高雄駁二藝術特區</span>
-            <span>⏰ 20:00</span>
-            <span>🎟 $300</span>
-          </div>
-        </div>
-        <span class="sch-badge badge-soon">報名中</span>
-      </div>
-
-      <div class="schedule-item">
-        <div class="sch-date">
-          <div class="day">14</div>
-          <span>六月</span>
-        </div>
-        <div class="sch-info">
-          <div class="sch-title">即興劇工作坊 — 開放入門體驗課</div>
-          <div class="sch-meta">
-            <span>📍 台北中山捷運站附近（確認後公布）</span>
-            <span>⏰ 14:00–17:00</span>
-            <span>🎟 免費</span>
-          </div>
-        </div>
-        <span class="sch-badge badge-soon">即將開放</span>
-      </div>
-
-      <div class="schedule-item">
-        <div class="sch-date">
-          <div class="day">28</div>
-          <span>六月</span>
-        </div>
-        <div class="sch-info">
-          <div class="sch-title">🏆 2026 台灣即興劇聯賽總決賽</div>
-          <div class="sch-meta">
-            <span>📍 台北國家戲劇院實驗劇場</span>
-            <span>⏰ 18:00 &amp; 21:00 雙場次</span>
-            <span>🎟 $500</span>
-          </div>
-        </div>
-        <span class="sch-badge badge-reg">敬請期待</span>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-<!-- PROMO -->
-<section id="promo">
-  <div class="inner reveal">
-    <div>
-      <div class="promo-label">2026 HIGHLIGHT EVENT</div>
-      <h2 class="promo-title">總決賽<br>門票開搶</h2>
-      <p class="promo-body">
-        六月二十八日，台北國家戲劇院實驗劇場，六支頂尖即興劇團的巔峰對決。兩個場次，一個冠軍，無數個只屬於當晚的故事。早鳥票即日起開放預購，數量有限，把握機會。
-      </p>
-      <div class="promo-details">
-        <div class="promo-detail">
-          <div class="val">6</div>
-          <div class="lbl">參賽隊伍</div>
-        </div>
-        <div class="promo-detail">
-          <div class="val">2</div>
-          <div class="lbl">演出場次</div>
-        </div>
-        <div class="promo-detail">
-          <div class="val">1</div>
-          <div class="lbl">冠軍誕生</div>
-        </div>
-      </div>
-    </div>
-    <div class="promo-cta-block">
-      <a href="#contact" class="promo-btn primary">立即購票</a>
-      <a href="#schedule" class="promo-btn secondary">查看完整賽程</a>
-    </div>
-  </div>
-</section>
-
-<!-- CONTACT -->
-<section id="contact">
-  <div class="inner">
-    <div class="reveal">
-      <div class="section-label">GET IN TOUCH</div>
-      <h2 class="section-title">聯繫我們</h2>
-      <p class="contact-intro">無論是購票詢問、媒體採訪、企業贊助，或是對即興劇充滿好奇，我們都很歡迎你來找我們聊聊。</p>
-      <div class="contact-info">
-        <div class="contact-row">
-          <div class="contact-icon">📍</div>
-          <div class="contact-detail">
-            <div class="lbl">主辦單位</div>
-            <div class="val">台灣即興劇推廣協會<br>台北市中正區仁愛路二段99號</div>
-          </div>
-        </div>
-        <div class="contact-row">
-          <div class="contact-icon">✉️</div>
-          <div class="contact-detail">
-            <div class="lbl">電子信箱</div>
-            <div class="val">hello@improv-league.tw</div>
-          </div>
-        </div>
-        <div class="contact-row">
-          <div class="contact-icon">📞</div>
-          <div class="contact-detail">
-            <div class="lbl">聯絡電話</div>
-            <div class="val">(02) 2345-6789<br>週一至週五 10:00–18:00</div>
-          </div>
-        </div>
-        <div class="contact-row">
-          <div class="contact-icon">📱</div>
-          <div class="contact-detail">
-            <div class="lbl">社群媒體</div>
-            <div class="val">@ImprovLeagueTW（IG / FB）</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="contact-form reveal">
-      <div class="form-row">
-        <div class="form-group">
-          <label>姓名</label>
-          <input type="text" placeholder="你的名字">
-        </div>
-        <div class="form-group">
-          <label>電子信箱</label>
-          <input type="email" placeholder="email@example.com">
-        </div>
-      </div>
-      <div class="form-group">
-        <label>詢問類別</label>
-        <select>
-          <option value="">請選擇</option>
-          <option>票務購買</option>
-          <option>媒體採訪</option>
-          <option>企業贊助</option>
-          <option>即興劇工作坊</option>
-          <option>其他問題</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>留言內容</label>
-        <textarea rows="5" placeholder="請告訴我們你的問題或想法…"></textarea>
-      </div>
-      <button class="form-submit">送出訊息 →</button>
-    </div>
-  </div>
-</section>
-
-<!-- FOOTER -->
-<footer>
-  <div class="footer-logo">即興<span>聯</span>賽 2026</div>
-  <div class="footer-copy">© 2026 台灣即興劇推廣協會 · ALL RIGHTS RESERVED</div>
-  <div class="footer-socials">
-    <a href="#">Instagram</a>
-    <a href="#">Facebook</a>
-    <a href="#">YouTube</a>
-  </div>
-</footer>
-
-<script>
-  // Scroll reveal
-  const revealEls = document.querySelectorAll('.reveal');
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(e => {
-      if (e.isIntersecting) { e.target.classList.add('visible'); }
-    });
-  }, { threshold: 0.1 });
-  revealEls.forEach(el => observer.observe(el));
-
-  // Active nav
-  const sections = document.querySelectorAll('section[id]');
-  const navLinks = document.querySelectorAll('.nav-links a');
-  window.addEventListener('scroll', () => {
-    let current = '';
-    sections.forEach(sec => {
-      if (window.scrollY >= sec.offsetTop - 200) current = sec.id;
-    });
-    navLinks.forEach(a => {
-      a.classList.remove('active');
-      if (a.getAttribute('href') === '#' + current) a.classList.add('active');
-    });
-  });
-
-  // Form submit
-  document.querySelector('.form-submit').addEventListener('click', function() {
-    this.textContent = '✓ 已送出！我們會盡快回覆';
-    this.style.background = '#1a7a3a';
-    setTimeout(() => {
-      this.textContent = '送出訊息 →';
-      this.style.background = '';
-    }, 3000);
-  });
-</script>
 </body>
 </html>
